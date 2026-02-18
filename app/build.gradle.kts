@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kapt)
 }
 
 android {
@@ -20,15 +22,65 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("release.keystore")
+            storePassword = "your_password"
+            keyAlias="your_alias"
+            keyPassword="your_password"
+        }
+    }
+
+    // kiểu build
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+            isDebuggable = true
+        }
+
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // signing config => chữ ký build app release
+            signingConfig = signingConfigs.getByName("release")
         }
     }
+
+    flavorDimensions += "environment"
+
+    // môi trường build
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix=".dev"
+            versionNameSuffix=".dev"
+
+            // domain
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://jsonplaceholder.typicode.com\""
+            )
+        }
+
+        create("production") {
+            dimension = "environment"
+
+
+            // domain
+            buildConfigField(
+                "String",
+                "BASE_URL",
+                "\"https://jsonplaceholder.typicode.com\""
+            )
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -39,6 +91,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        viewBinding = true
     }
 }
 
@@ -52,6 +105,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -59,14 +113,15 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    // Kotlin Coroutines Core (có StateFlow)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    // Coroutine cho Android (lifecycleScope, viewModelScope)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
-
-    implementation("com.jakewharton.timber:timber:5.0.1")
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.fragment.ktx)
+    implementation(libs.timber)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
 }
