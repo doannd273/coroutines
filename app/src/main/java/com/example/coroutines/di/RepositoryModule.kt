@@ -1,7 +1,9 @@
 package com.example.coroutines.di
 
-import com.example.coroutines.data.UserRepository
-import com.example.coroutines.data.UserRepositoryImpl
+import com.example.coroutines.data.repository.LoginRepository
+import com.example.coroutines.data.repository.UserRepository
+import com.example.coroutines.domain.repository.LoginRepositoryImpl
+import com.example.coroutines.domain.repository.UserRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -16,4 +18,10 @@ interface RepositoryModule {
     fun bindUserRepository(
         userRepositoryImpl: UserRepositoryImpl
     ): UserRepository
+
+    @Singleton
+    @Binds
+    fun bindLoginRepository(
+        loginRepositoryImpl: LoginRepositoryImpl
+    ): LoginRepository
 }

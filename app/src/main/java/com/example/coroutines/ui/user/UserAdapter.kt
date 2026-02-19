@@ -8,10 +8,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.coroutines.R
-import com.example.coroutines.model.User
+import com.example.coroutines.domain.model.UserModel
 
 class UserAdapter :
-    ListAdapter<User, UserAdapter.UserViewHolder>(DiffCallback()) {
+    ListAdapter<UserModel, UserAdapter.UserViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -28,20 +28,20 @@ class UserAdapter :
 
         private val tvName: TextView = itemView.findViewById(R.id.tvName)
 
-        fun bind(user: User) {
-            tvName.text = user.name
+        fun bind(userModel: UserModel) {
+            tvName.text = userModel.name
         }
     }
 
-    class DiffCallback : DiffUtil.ItemCallback<User>() {
+    class DiffCallback : DiffUtil.ItemCallback<UserModel>() {
 
         // So sánh item có cùng ID không
-        override fun areItemsTheSame(oldItem: User, newItem: User): Boolean {
+        override fun areItemsTheSame(oldItem: UserModel, newItem: UserModel): Boolean {
             return oldItem.id == newItem.id
         }
 
         // So sánh nội dung có thay đổi không
-        override fun areContentsTheSame(oldItem: User, newItem: User): Boolean {
+        override fun areContentsTheSame(oldItem: UserModel, newItem: UserModel): Boolean {
             return oldItem == newItem
         }
     }

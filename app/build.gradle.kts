@@ -63,9 +63,15 @@ android {
             // domain
             buildConfigField(
                 "String",
-                "BASE_URL",
+                "BASE_JSON_PLACE",
                 "\"https://jsonplaceholder.typicode.com\""
             )
+            buildConfigField(
+                "String",
+                "BASE_REQRES",
+                "\"https://reqres.in\""
+            )
+            buildConfigField("String", "API_KEY", "\"reqres_c0fce7bb4f75480f8f92833388984f30\"")
         }
 
         create("production") {
@@ -75,9 +81,15 @@ android {
             // domain
             buildConfigField(
                 "String",
-                "BASE_URL",
+                "BASE_JSON_PLACE",
                 "\"https://jsonplaceholder.typicode.com\""
             )
+            buildConfigField(
+                "String",
+                "BASE_REQRES",
+                "\"https://reqres.in\""
+            )
+            buildConfigField("String", "API_KEY", "\"reqres_c0fce7bb4f75480f8f92833388984f30\"")
         }
     }
 
@@ -106,6 +118,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -124,4 +138,11 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    kapt(libs.room.compiler)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+
 }

@@ -1,0 +1,26 @@
+package com.example.coroutines.data.remote.interceptor
+
+import com.example.coroutines.data.local.datastore.TokenManager
+import okhttp3.Interceptor
+import okhttp3.Response
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * add access token vào header
+ */
+@Singleton
+class AuthInterceptor @Inject constructor(
+    private val tokenManager: TokenManager
+): Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val token = tokenManager.getToken()
+        val request = chain.request().newBuilder().apply {
+            token?.let {
+                addHeader("Authorization", "Bearer $it")
+            }
+        }.build()
+
+        return chain.proceed(request)
+    }
+}

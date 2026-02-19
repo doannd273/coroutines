@@ -2,16 +2,17 @@ package com.example.coroutines.ui.user
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.coroutines.R
 import com.example.coroutines.databinding.FragmentUserBinding
+import com.example.coroutines.ui.common.dialog.ErrorDialogFactory
+import com.example.coroutines.ui.common.dialog.LoadingDialogFactory
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -31,6 +32,13 @@ class UserFragment : Fragment(R.layout.fragment_user) {
         initView(view)
         observer()
         initData()
+        initEvents()
+    }
+
+    private fun initEvents() {
+        binding.backBtn.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 
     private fun initView(view: View) {
@@ -46,36 +54,28 @@ class UserFragment : Fragment(R.layout.fragment_user) {
     private fun observer() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.userState.collect { userState ->
-                    when (userState) {
-                        is UserUiState.Success -> {
-                            adapter.submitList(userState.data)
-                        }
-
-                        is UserUiState.Error -> {
-                            Toast.makeText(requireContext(),
-                                userState.message,
-                                Toast.LENGTH_LONG).show()
-                        }
-                    }
+                viewModel.users.collect { users ->
+                    adapter.submitList(users)
                 }
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.isLoading.collect { value ->
-                    showLoading(value)
+                viewModel.isLoading.collect { isLoading ->
+                    if (isLoading) {
+                        LoadingDialogFactory.show(this@UserFragment)
+                    } else {
+                        LoadingDialogFactory.dismiss(this@UserFragment)
+                    }
                 }
             }
         }
-    }
 
-    private fun showLoading(isShow: Boolean) {
-        if (isShow) {
-            binding.loadingLayout.visibility = View.VISIBLE
-        } else {
-            binding.loadingLayout.visibility = View.GONE
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.error.collect { message ->
+                ErrorDialogFactory.show(this@UserFragment, message)
+            }
         }
     }
 

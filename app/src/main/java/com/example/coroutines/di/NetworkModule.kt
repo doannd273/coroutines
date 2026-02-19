@@ -1,7 +1,11 @@
 package com.example.coroutines.di
 
 import com.example.coroutines.BuildConfig
-import com.example.coroutines.data.ApiService
+import com.example.coroutines.data.remote.api.ApiService
+import com.example.coroutines.data.remote.api.AuthService
+import com.example.coroutines.data.remote.authenticator.TokenAuthenticator
+import com.example.coroutines.data.remote.interceptor.AuthInterceptor
+import com.example.coroutines.data.remote.interceptor.LoginInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,7 +14,24 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class MainRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AuthRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AuthOkhttp
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class MainOkhttp
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -18,23 +39,68 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkhttpClient(): OkHttpClient {
+    @MainOkhttp
+    fun provideMainOkhttpClient(
+        authInterceptor: AuthInterceptor,
+        tokenAuthenticator: TokenAuthenticator
+    ): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
-
         return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .authenticator(tokenAuthenticator)
             .addInterceptor(logging)
             .build()
+
     }
 
     @Provides
     @Singleton
-    fun provideRetrofit(
+    @AuthOkhttp
+    fun provideAuthOkhttpClient(
+        loginInterceptor: LoginInterceptor,
+    ): OkHttpClient {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        return OkHttpClient.Builder()
+            .addInterceptor(loginInterceptor)
+            .addInterceptor(logging)
+            .build()
+
+    }
+
+    @Provides
+    @Singleton
+    @MainRetrofit
+    fun provideUserRetrofit(
+        @MainOkhttp okHttpClient: OkHttpClient
+    ): Retrofit {
+        return buildRetrofit(
+            baseUrl = BuildConfig.BASE_REQRES,
+            okHttpClient = okHttpClient
+        )
+    }
+
+    @Provides
+    @Singleton
+    @AuthRetrofit
+    fun provideAuthRetrofit(
+        @AuthOkhttp okHttpClient: OkHttpClient
+    ): Retrofit {
+        return buildRetrofit(
+            baseUrl = BuildConfig.BASE_REQRES,
+            okHttpClient = okHttpClient
+        )
+    }
+
+    private fun buildRetrofit(
+        baseUrl: String,
         okHttpClient: OkHttpClient
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
+            .baseUrl(baseUrl)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -42,7 +108,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): ApiService {
+    fun provideApiService(@MainRetrofit retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthService(@AuthRetrofit retrofit: Retrofit): AuthService {
+        return retrofit.create(AuthService::class.java)
     }
 }
