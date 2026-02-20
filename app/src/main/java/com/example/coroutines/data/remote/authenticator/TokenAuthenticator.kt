@@ -37,7 +37,7 @@ class TokenAuthenticator @Inject constructor(
                 } catch (e: Exception) {
                     return@withLock null
                 }
-                tokenManager.saveToken(newToken.accessToken)
+                tokenManager.updateAccessToken(newToken.accessToken)
 
                 // call lại api bị 401
                 response.request.newBuilder()

@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.kapt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -36,6 +38,9 @@ android {
         debug {
             isMinifyEnabled = false
             isDebuggable = true
+            firebaseCrashlytics {
+                mappingFileUploadEnabled = false
+            }
         }
 
         release {
@@ -46,6 +51,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            firebaseCrashlytics {
+                mappingFileUploadEnabled = true
+            }
             // signing config => chữ ký build app release
             signingConfig = signingConfigs.getByName("release")
         }
@@ -57,7 +65,7 @@ android {
     productFlavors {
         create("dev") {
             dimension = "environment"
-            applicationIdSuffix=".dev"
+            //applicationIdSuffix=".dev"
             versionNameSuffix=".dev"
 
             // domain
@@ -145,4 +153,8 @@ dependencies {
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
 }

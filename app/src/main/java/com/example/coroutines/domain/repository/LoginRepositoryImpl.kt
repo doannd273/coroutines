@@ -17,7 +17,7 @@ class LoginRepositoryImpl @Inject constructor(
         )
         response.token?.let { token ->
             if (token.isNotEmpty()) {
-                tokenManager.saveToken(token)
+                tokenManager.saveTokens(token, "")
             }
         }
         return response

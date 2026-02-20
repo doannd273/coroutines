@@ -2,7 +2,6 @@ package com.example.coroutines.ui.login
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -10,21 +9,17 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.coroutines.R
 import com.example.coroutines.databinding.FragmentLoginBinding
-import com.example.coroutines.ui.common.dialog.ErrorDialogFactory
-import com.example.coroutines.ui.common.dialog.LoadingDialogFactory
+import com.example.coroutines.ui.common.base.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class LoginFragment : Fragment(R.layout.fragment_login) {
+class LoginFragment : BaseFragment<FragmentLoginBinding>(FragmentLoginBinding::inflate) {
 
     private val viewModel: LoginViewModel by viewModels()
-    private lateinit var binding: FragmentLoginBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        initView(rootView = view)
         initEvents()
         observer()
     }
@@ -41,25 +36,17 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
                 launch {
                     viewModel.error.collect { message ->
-                        ErrorDialogFactory.show(this@LoginFragment, message)
+                        showError(message)
                     }
                 }
 
                 launch {
-                    viewModel.isLoading.collect { isLoading ->
-                        if (isLoading) {
-                            LoadingDialogFactory.show(this@LoginFragment)
-                        } else {
-                            LoadingDialogFactory.dismiss(this@LoginFragment)
-                        }
+                    viewModel.loading.collect { isLoading ->
+                        showLoading(isLoading)
                     }
                 }
             }
         }
-    }
-
-    private fun initView(rootView: View) {
-        binding = FragmentLoginBinding.bind(rootView)
     }
 
     private fun initEvents() {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "95165039796",
+    "project_id": "coroutines-f78d6",
+    "storage_bucket": "coroutines-f78d6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95165039796:android:772babf95b941cd0a903e1",
+        "android_client_info": {
+          "package_name": "com.example.coroutines"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrABePC6B5d8VBDGYPYDsljV-oqd8aYKs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
